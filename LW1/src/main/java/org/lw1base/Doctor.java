@@ -1,18 +1,35 @@
 package org.lw1base;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class Doctor {
+    @JsonProperty("doctorId")
     private final int doctorId;
+
+    @JsonProperty("lastName")
     private final String lastName;
+
+    @JsonProperty("firstName")
     private final String firstName;
+
+    @JsonProperty("middleName")
     private final String middleName;
+
+    @JsonProperty("qualification")
     private final int qualification;
+
+    @JsonProperty("specialtyId")
     private final int specialtyId;
 
     private static final int MIN_QUALIFICATION = 1;
     private static final int MAX_QUALIFICATION = 5;
     private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-zА-Яа-я-]+$");
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
 
     private Doctor(int doctorId, String lastName, String firstName, String middleName, int qualification, int specialtyId) {
         this.doctorId = doctorId;
@@ -23,7 +40,7 @@ public class Doctor {
         this.specialtyId = specialtyId;
     }
 
-    public static Doctor createDoctor(int doctorId, String lastName, String firstName, String middleName, int qualification, int specialtyId) {
+    public static Doctor createFromRaw(int doctorId, String lastName, String firstName, String middleName, int qualification, int specialtyId) {
         validateDoctorId(doctorId);
         validateName(lastName, "Last name");
         validateName(firstName, "First name");
@@ -32,6 +49,41 @@ public class Doctor {
         validateSpecialtyId(specialtyId);
 
         return new Doctor(doctorId, lastName, firstName, middleName, qualification, specialtyId);
+    }
+
+    public static Doctor createFromString(String doctorString) {
+        String[] parts = doctorString.split(",");
+        if (parts.length != 6) {
+            throw new IllegalArgumentException("Неверный тип данных. Ожидается строка, разделённая 6 запятыми");
+        }
+
+        try {
+            int doctorId = Integer.parseInt(parts[0].trim());
+            String lastName = parts[1].trim();
+            String firstName = parts[2].trim();
+            String middleName = parts[3].trim();
+            int qualification = Integer.parseInt(parts[4].trim());
+            int specialtyId = Integer.parseInt(parts[5].trim());
+
+            return createFromRaw(doctorId, lastName, firstName, middleName, qualification, specialtyId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Неверный формат данных в строке", e);
+        }
+    }
+
+    public static Doctor createFromJson(String json) throws IOException, JsonProcessingException {
+        Doctor doctor = objectMapper.readValue(json, Doctor.class);
+        validateDoctor(doctor);
+        return doctor;
+    }
+
+    private static void validateDoctor(Doctor doctor) {
+        validateDoctorId(doctor.doctorId);
+        validateName(doctor.lastName, "Last name");
+        validateName(doctor.firstName, "First name");
+        validateName(doctor.middleName, "Middle name");
+        validateQualification(doctor.qualification);
+        validateSpecialtyId(doctor.specialtyId);
     }
 
     private static void validateDoctorId(int doctorId) {
@@ -92,5 +144,8 @@ public class Doctor {
                 ", qualification=" + qualification +
                 ", specialtyId=" + specialtyId +
                 '}';
+    }
+    public String toJson() throws IOException {
+        return objectMapper.writeValueAsString(this);
     }
 }

@@ -112,7 +112,7 @@ classDiagram
         +toString() String
     }
 
-    Doctor <|-- BriefDoctorInfo
+    Doctor <|-- BriefDoctorInfo : extends
     Doctor ..> DoctorValidator : uses
     BriefDoctorInfo ..> Doctor : creates from
 ```

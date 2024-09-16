@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class Doctor {
@@ -27,7 +28,7 @@ public class Doctor {
 
     protected static final int MIN_QUALIFICATION = 1;
     protected static final int MAX_QUALIFICATION = 5;
-    protected static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-zА-Яа-я-]+$");
+    protected static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z-]+$");
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
     protected Doctor(int doctorId, String lastName, String firstName, String middleName, int qualification, int specialtyId) {
@@ -41,9 +42,9 @@ public class Doctor {
 
     public static Doctor createFromRaw(int doctorId, String lastName, String firstName, String middleName, int qualification, int specialtyId) {
         validateDoctorId(doctorId);
-        validateName(lastName, "Last name");
-        validateName(firstName, "First name");
-        validateName(middleName, "Middle name");
+        validateName(lastName, "Отчетсов");
+        validateName(firstName, "Имя");
+        validateName(middleName, "Фамилия");
         validateQualification(qualification);
         validateSpecialtyId(specialtyId);
 
@@ -53,7 +54,7 @@ public class Doctor {
     public static Doctor createFromString(String doctorString) {
         String[] parts = doctorString.split(",");
         if (parts.length != 6) {
-            throw new IllegalArgumentException("Invalid doctor string format. Expected 6 comma-separated values.");
+            throw new IllegalArgumentException("Неверный формат строки врача. Ожидается 6 значений, разделенных запятыми.");
         }
 
         try {
@@ -66,7 +67,7 @@ public class Doctor {
 
             return createFromRaw(doctorId, lastName, firstName, middleName, qualification, specialtyId);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid number format in doctor string", e);
+            throw new IllegalArgumentException("Неверный формат числа в строке врача.", e);
         }
     }
 
@@ -78,34 +79,34 @@ public class Doctor {
 
     protected static void validateDoctor(Doctor doctor) {
         validateDoctorId(doctor.doctorId);
-        validateName(doctor.lastName, "Last name");
-        validateName(doctor.firstName, "First name");
-        validateName(doctor.middleName, "Middle name");
+        validateName(doctor.lastName, "Отчество");
+        validateName(doctor.firstName, "Имя");
+        validateName(doctor.middleName, "Фамилия");
         validateQualification(doctor.qualification);
         validateSpecialtyId(doctor.specialtyId);
     }
 
     protected static void validateDoctorId(int doctorId) {
         if (doctorId <= 0) {
-            throw new IllegalArgumentException("Doctor ID must be a positive integer");
+            throw new IllegalArgumentException("ID врача должно быть целым положительным числом");
         }
     }
 
     protected static void validateName(String name, String fieldName) {
         if (name == null || name.isEmpty() || !NAME_PATTERN.matcher(name).matches()) {
-            throw new IllegalArgumentException(fieldName + " must contain only letters, hyphens, and be non-empty");
+            throw new IllegalArgumentException(fieldName + " должно содержать только буквы и дефисы и быть непустым");
         }
     }
 
     protected static void validateQualification(int qualification) {
         if (qualification < MIN_QUALIFICATION || qualification > MAX_QUALIFICATION) {
-            throw new IllegalArgumentException("Qualification must be between " + MIN_QUALIFICATION + " and " + MAX_QUALIFICATION);
+            throw new IllegalArgumentException("Квалификация должна находиться между " + MIN_QUALIFICATION + " и " + MAX_QUALIFICATION);
         }
     }
 
     protected static void validateSpecialtyId(int specialtyId) {
         if (specialtyId <= 0) {
-            throw new IllegalArgumentException("Specialty ID must be a positive integer");
+            throw new IllegalArgumentException("ID специальности должно быть целым положительным числом");
         }
     }
 
@@ -127,6 +128,24 @@ public class Doctor {
                 ", qualification=" + qualification +
                 ", specialtyId=" + specialtyId +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Doctor doctor = (Doctor) o;
+        return doctorId == doctor.doctorId &&
+                qualification == doctor.qualification &&
+                specialtyId == doctor.specialtyId &&
+                Objects.equals(lastName, doctor.lastName) &&
+                Objects.equals(firstName, doctor.firstName) &&
+                Objects.equals(middleName, doctor.middleName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(doctorId, lastName, firstName, middleName, qualification, specialtyId);
     }
 
     public String toJson() throws IOException {

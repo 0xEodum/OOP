@@ -38,6 +38,7 @@ erDiagram
     }
 ```
 
+
 ## Описание таблиц
 
 1. **PATIENT (Пациент)**:
@@ -65,3 +66,53 @@ erDiagram
 
 ## Выбранная таблица для дальнейшей работы:
 **Таблица DOCTOR - Врач**
+
+## Диаграмма классов
+```mermaid
+classDiagram
+    class Doctor {
+        -int doctorId
+        -String lastName
+        -String firstName
+        -String middleName
+        -int qualification
+        -int specialtyId
+        -static int MIN_QUALIFICATION
+        -static int MAX_QUALIFICATION
+        -static ObjectMapper objectMapper
+        +Doctor(int, String, String, String, int, int)
+        +static createFromRaw(int, String, String, String, int, int) Doctor
+        +static createFromString(String) Doctor
+        +static createFromJson(String) Doctor
+        +getDoctorId() int
+        +getLastName() String
+        +getFirstName() String
+        +getMiddleName() String
+        +getQualification() int
+        +getSpecialtyId() int
+        +toJson() String
+        +toString() String
+        +equals(Object) boolean
+        +hashCode() int
+    }
+
+    class DoctorValidator {
+        -static Pattern NAME_PATTERN
+        +static validateDoctorId(int)
+        +static validateName(String, String)
+        +static validateQualification(int, int, int)
+        +static validateSpecialtyId(int)
+        +static validateDoctor(Doctor)
+    }
+
+    class BriefDoctorInfo {
+        -BriefDoctorInfo(int, String, String, String, int, int)
+        +static createFromDoctor(Doctor) BriefDoctorInfo
+        +getInitials() String
+        +toString() String
+    }
+
+    Doctor <|-- BriefDoctorInfo
+    Doctor ..> DoctorValidator : uses
+    BriefDoctorInfo ..> Doctor : creates from
+```

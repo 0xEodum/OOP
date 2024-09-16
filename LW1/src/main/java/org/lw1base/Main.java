@@ -3,7 +3,7 @@ package org.lw1base;
 public class Main {
     public static void main(String[] args) {
         try {
-            Doctor doctor1 = Doctor.createFromRaw(1, "Ivanov", "Ivan", "Ivanovich", 3, 1);
+            Doctor doctor1 = Doctor.createFromRaw(1, "Ivanov", "Иван", "Ivanovich", 3, 1);
             Doctor doctor2 = Doctor.createFromRaw(1, "Ivanov", "Ivan", "Ivanovich", 3, 1);
             Doctor doctor3 = Doctor.createFromRaw(2, "Petrov", "Petr", "Petrovich", 4, 2);
 

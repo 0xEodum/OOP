@@ -1,89 +1,29 @@
 package org.lw1base;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.IOException;
 import java.util.Objects;
 
-public class Doctor {
-    @JsonProperty("doctorId")
-    private final int doctorId;
-
-    @JsonProperty("lastName")
-    private final String lastName;
-
-    @JsonProperty("firstName")
-    private final String firstName;
-
+public class Doctor extends BriefDoctor {
     @JsonProperty("middleName")
-    private final String middleName;
+    private String middleName;
 
     @JsonProperty("qualification")
-    private final int qualification;
+    private int qualification;
 
-    @JsonProperty("specialtyId")
-    private final int specialtyId;
+    @JsonProperty("specialty")
+    private String specialty;
 
-    private static final int MIN_QUALIFICATION = 1;
-    private static final int MAX_QUALIFICATION = 5;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    protected Doctor(int doctorId, String lastName, String firstName, String middleName, int qualification, int specialtyId) {
-        this.doctorId = doctorId;
-        this.lastName = lastName;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.qualification = qualification;
-        this.specialtyId = specialtyId;
-    }
-
-    public static Doctor createFromRaw(int doctorId, String lastName, String firstName, String middleName, int qualification, int specialtyId) {
-        DoctorValidator.validateDoctorId(doctorId);
-        DoctorValidator.validateName(lastName, "Last Name");
-        DoctorValidator.validateName(firstName, "First Name");
-        DoctorValidator.validateName(middleName, "Middle Name");
-        DoctorValidator.validateQualification(qualification, MIN_QUALIFICATION, MAX_QUALIFICATION);
-        DoctorValidator.validateSpecialtyId(specialtyId);
-        return new Doctor(doctorId, lastName, firstName, middleName, qualification, specialtyId);
-    }
-
-    public static Doctor createFromString(String doctorString) {
-        String[] parts = doctorString.split(",");
-        if (parts.length != 6) {
-            throw new IllegalArgumentException("Неверный формат строки врача. Ожидается 6 значений, разделенных запятыми.");
-        }
-        try {
-            int doctorId = Integer.parseInt(parts[0].trim());
-            String lastName = parts[1].trim();
-            String firstName = parts[2].trim();
-            String middleName = parts[3].trim();
-            int qualification = Integer.parseInt(parts[4].trim());
-            int specialtyId = Integer.parseInt(parts[5].trim());
-
-            return createFromRaw(doctorId, lastName, firstName, middleName, qualification, specialtyId);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Неверный формат числа в строке врача.", e);
-        }
-    }
-
-    public static Doctor createFromJson(String json) throws IOException {
-        Doctor doctor = objectMapper.readValue(json, Doctor.class);
-        DoctorValidator.validateDoctor(doctor);
-        return doctor;
-    }
-
-    public int getDoctorId() {
-        return doctorId;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getFirstName() {
-        return firstName;
+    private Doctor(Builder builder) {
+        super(builder.doctorId, builder.lastName, builder.firstName);
+        this.middleName = builder.middleName;
+        this.qualification = builder.qualification;
+        this.specialty = builder.specialty;
     }
 
     public String getMiddleName() {
@@ -94,12 +34,106 @@ public class Doctor {
         return qualification;
     }
 
-    public int getSpecialtyId() {
-        return specialtyId;
+    public String getSpecialty() {
+        return specialty;
+    }
+
+    @Override
+    public String getInitials() {
+        return firstName.charAt(0) + "." + middleName.charAt(0) + "." + lastName.charAt(0) + ".";
+    }
+
+    public static Doctor createNewDoctor(String lastName, String firstName, String middleName, int qualification, String specialty) {
+        return new Builder()
+                .lastName(lastName)
+                .firstName(firstName)
+                .middleName(middleName)
+                .qualification(qualification)
+                .specialty(specialty)
+                .build();
+    }
+
+    public static Doctor updateExistingDoctor(int doctorId, String lastName, String firstName, String middleName, int qualification, String specialty) {
+        return new Builder()
+                .doctorId(doctorId)
+                .lastName(lastName)
+                .firstName(firstName)
+                .middleName(middleName)
+                .qualification(qualification)
+                .specialty(specialty)
+                .build();
+    }
+
+    public static Doctor createFromString(String doctorString) {
+        String[] parts = doctorString.split(",");
+        if (parts.length != 6) {
+            throw new IllegalArgumentException("Неверный формат строки врача. Ожидается 6 значений, разделенных запятыми.");
+        }
+        try {
+            return new Builder()
+                    .doctorId(Integer.parseInt(parts[0].trim()))
+                    .lastName(parts[1].trim())
+                    .firstName(parts[2].trim())
+                    .middleName(parts[3].trim())
+                    .qualification(Integer.parseInt(parts[4].trim()))
+                    .specialty(parts[5].trim())
+                    .build();
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Неверный формат числа в строке врача.", e);
+        }
+    }
+
+    public static Doctor createFromJson(String json) throws IOException {
+        return objectMapper.readValue(json, Doctor.class);
     }
 
     public String toJson() throws JsonProcessingException {
         return objectMapper.writeValueAsString(this);
+    }
+
+    public static class Builder {
+        private int doctorId;
+        private String lastName;
+        private String firstName;
+        private String middleName;
+        private int qualification;
+        private String specialty;
+
+        public Builder doctorId(int doctorId) {
+            this.doctorId = doctorId;
+            return this;
+        }
+
+        public Builder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public Builder firstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public Builder middleName(String middleName) {
+            this.middleName = middleName;
+            return this;
+        }
+
+        public Builder qualification(int qualification) {
+            this.qualification = qualification;
+            return this;
+        }
+
+        public Builder specialty(String specialty) {
+            this.specialty = specialty;
+            return this;
+        }
+
+        public Doctor build() {
+            Doctor doctor = new Doctor(this);
+            DoctorValidator.validateDoctor(doctor);
+            return doctor;
+        }
     }
 
     @Override
@@ -110,25 +144,28 @@ public class Doctor {
                 ", firstName='" + firstName + '\'' +
                 ", middleName='" + middleName + '\'' +
                 ", qualification=" + qualification +
-                ", specialtyId=" + specialtyId +
+                ", specialty='" + specialty + '\'' +
+                ", initials='" + getInitials() + '\'' +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Doctor)) return false;
+        if (!super.equals(o)) return false;
         Doctor doctor = (Doctor) o;
-        return doctorId == doctor.doctorId &&
-                qualification == doctor.qualification &&
-                specialtyId == doctor.specialtyId &&
-                Objects.equals(lastName, doctor.lastName) &&
-                Objects.equals(firstName, doctor.firstName) &&
-                Objects.equals(middleName, doctor.middleName);
+        return qualification == doctor.qualification &&
+                Objects.equals(middleName, doctor.middleName) &&
+                Objects.equals(specialty, doctor.specialty);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(doctorId, lastName, firstName, middleName, qualification, specialtyId);
+        return Objects.hash(super.hashCode(), middleName, qualification, specialty);
+    }
+
+    public boolean isSameBriefDoctor(BriefDoctor other) {
+        return super.equals(other);
     }
 }

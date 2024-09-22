@@ -3,8 +3,10 @@ package org.lw1base;
 
 import java.util.regex.Pattern;
 
+import java.util.regex.Pattern;
+
 public class DoctorValidator {
-    private static final Pattern NAME_PATTERN = Pattern.compile("^[^\\\\d\\\\s]+$", Pattern.UNICODE_CHARACTER_CLASS);
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[^\\d\\s]+$", Pattern.UNICODE_CHARACTER_CLASS);
 
     public static void validateDoctorId(int doctorId) {
         if (doctorId <= 0) {
@@ -18,26 +20,25 @@ public class DoctorValidator {
         }
     }
 
-    public static void validateQualification(int qualification, int minQualification, int maxQualification) {
-        if (qualification < minQualification || qualification > maxQualification) {
-            throw new IllegalArgumentException("Квалификация должна находиться между " + minQualification + " и " + maxQualification);
+    public static void validateQualification(int qualification) {
+        if (qualification < 1 || qualification > 5) {
+            throw new IllegalArgumentException("Квалификация должна находиться между 1 и 5");
         }
     }
 
-    public static void validateSpecialtyId(int specialtyId) {
-        if (specialtyId <= 0) {
-            throw new IllegalArgumentException("ID специальности должно быть целым положительным числом.");
+    public static void validateSpecialty(String specialty) {
+        if (specialty == null || specialty.trim().isEmpty()) {
+            throw new IllegalArgumentException("Специальность не может быть пустой");
         }
     }
 
     public static void validateDoctor(Doctor doctor) {
         validateDoctorId(doctor.getDoctorId());
-        validateDoctorId(doctor.getDoctorId());
         validateName(doctor.getLastName(), "Last Name");
         validateName(doctor.getFirstName(), "First Name");
         validateName(doctor.getMiddleName(), "Middle Name");
-        validateQualification(doctor.getQualification(), 1, 5);
-        validateSpecialtyId(doctor.getSpecialtyId());
+        validateQualification(doctor.getQualification());
+        validateSpecialty(doctor.getSpecialty());
     }
 }
 

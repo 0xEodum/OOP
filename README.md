@@ -1,10 +1,11 @@
+# Обновленная документация
 
+## ER-диаграмма
 
 ```mermaid
 erDiagram
     PATIENT ||--o{ VISIT : "обращается"
     DOCTOR ||--o{ VISIT : "принимает"
-    SPECIALTY ||--o{ DOCTOR : "имеет"
 
     PATIENT {
         int patient_id PK
@@ -20,7 +21,7 @@ erDiagram
         string first_name
         string middle_name
         int qualification
-        int specialty_id FK
+        string specialty
     }
 
     VISIT {
@@ -31,13 +32,7 @@ erDiagram
         string diagnosis
         decimal treatment_cost
     }
-
-    SPECIALTY {
-        int specialty_id PK
-        string specialty_name
-    }
 ```
-
 
 ## Описание таблиц
 
@@ -50,7 +45,7 @@ erDiagram
    - doctor_id: уникальный идентификатор врача (первичный ключ)
    - last_name, first_name, middle_name: ФИО врача
    - qualification: квалификация врача
-   - specialty_id: внешний ключ, связывающий с таблицей SPECIALTY
+   - specialty: специальность врача
 
 3. **VISIT (Посещение)**:
    - visit_id: уникальный идентификатор посещения (первичный ключ)
@@ -60,36 +55,45 @@ erDiagram
    - diagnosis: установленный диагноз
    - treatment_cost: стоимость лечения
 
-4. **SPECIALTY (Специальность)**:
-   - specialty_id: уникальный идентификатор специальности (первичный ключ)
-   - specialty_name: название специальности
-
 ## Выбранная таблица для дальнейшей работы:
 **Таблица DOCTOR - Врач**
 
 ## Диаграмма классов
 ```mermaid
 classDiagram
-    class Doctor {
-        -int doctorId
-        -String lastName
-        -String firstName
-        -String middleName
-        -int qualification
-        -int specialtyId
-        -static int MIN_QUALIFICATION
-        -static int MAX_QUALIFICATION
-        -static ObjectMapper objectMapper
-        +Doctor(int, String, String, String, int, int)
-        +static createFromRaw(int, String, String, String, int, int) Doctor
-        +static createFromString(String) Doctor
-        +static createFromJson(String) Doctor
+    class IDoctor {
+        <<interface>>
         +getDoctorId() int
         +getLastName() String
         +getFirstName() String
+        +getInitials() String
+    }
+
+    class BriefDoctor {
+        #int doctorId
+        #String lastName
+        #String firstName
+        +BriefDoctor()
+        +BriefDoctor(int, String, String)
+        +setDoctorId(int)
+        +setLastName(String)
+        +setFirstName(String)
+        +getInitials() String
+        +toString() String
+    }
+
+    class Doctor {
+        -String middleName
+        -int qualification
+        -String specialty
+        -Doctor(Builder)
         +getMiddleName() String
         +getQualification() int
-        +getSpecialtyId() int
+        +getSpecialty() String
+        +getInitials() String
+        +static createFromRaw(int, String, String, String, int, String) Doctor
+        +static createFromString(String) Doctor
+        +static createFromJson(String) Doctor
         +toJson() String
         +toString() String
         +equals(Object) boolean
@@ -97,22 +101,15 @@ classDiagram
     }
 
     class DoctorValidator {
-        -static Pattern NAME_PATTERN
         +static validateDoctorId(int)
         +static validateName(String, String)
-        +static validateQualification(int, int, int)
-        +static validateSpecialtyId(int)
+        +static validateQualification(int)
+        +static validateSpecialty(String)
         +static validateDoctor(Doctor)
     }
 
-    class BriefDoctorInfo {
-        -BriefDoctorInfo(int, String, String, String, int, int)
-        +static createFromDoctor(Doctor) BriefDoctorInfo
-        +getInitials() String
-        +toString() String
-    }
-
-    Doctor --|> BriefDoctorInfo : extends
+    IDoctor <|.. BriefDoctor : implements
+    BriefDoctor <|-- Doctor : extends
     Doctor ..> DoctorValidator : uses
-    BriefDoctorInfo ..> Doctor : creates from
+    BriefDoctor ..> DoctorValidator : uses
 ```

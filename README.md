@@ -107,7 +107,7 @@ classDiagram
         +isSameBriefDoctor(BriefDoctor) boolean
     }
 
-    class Doctor::Builder {
+    class Doctor.Builder {
         -int doctorId
         -String lastName
         -String firstName

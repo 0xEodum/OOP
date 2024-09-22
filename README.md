@@ -75,10 +75,15 @@ classDiagram
         #String firstName
         +BriefDoctor()
         +BriefDoctor(int, String, String)
+        +getDoctorId() int
         +setDoctorId(int)
+        +getLastName() String
         +setLastName(String)
+        +getFirstName() String
         +setFirstName(String)
         +getInitials() String
+        +equals(Object) boolean
+        +hashCode() int
         +toString() String
     }
 
@@ -91,13 +96,31 @@ classDiagram
         +getQualification() int
         +getSpecialty() String
         +getInitials() String
-        +static createFromRaw(int, String, String, String, int, String) Doctor
+        +static createNewDoctor(String, String, String, int, String) Doctor
+        +static updateExistingDoctor(int, String, String, String, int, String) Doctor
         +static createFromString(String) Doctor
         +static createFromJson(String) Doctor
         +toJson() String
         +toString() String
         +equals(Object) boolean
         +hashCode() int
+        +isSameBriefDoctor(BriefDoctor) boolean
+    }
+
+    class Doctor::Builder {
+        -int doctorId
+        -String lastName
+        -String firstName
+        -String middleName
+        -int qualification
+        -String specialty
+        +doctorId(int) Builder
+        +lastName(String) Builder
+        +firstName(String) Builder
+        +middleName(String) Builder
+        +qualification(int) Builder
+        +specialty(String) Builder
+        +build() Doctor
     }
 
     class DoctorValidator {
@@ -110,6 +133,7 @@ classDiagram
 
     IDoctor <|.. BriefDoctor : implements
     BriefDoctor <|-- Doctor : extends
+    Doctor *-- Doctor::Builder : uses
     Doctor ..> DoctorValidator : uses
     BriefDoctor ..> DoctorValidator : uses
 ```

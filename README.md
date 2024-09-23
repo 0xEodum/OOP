@@ -113,3 +113,55 @@ classDiagram
     Doctor ..> DoctorValidator : uses
     BriefDoctor ..> DoctorValidator : uses
 ```
+
+## Диаграмма классов парсинга
+```mermaid
+classDiagram
+    class IDoctorRepository {
+        <<interface>>
+        +readFromFile()
+        +writeToFile()
+        +getById(id: int): Doctor
+        +get_k_n_short_list(k: int, n: int): List<BriefDoctor>
+        +sortByField(fieldName: String)
+        +addDoctor(doctor: Doctor)
+        +replaceDoctor(id: int, newDoctor: Doctor)
+        +deleteDoctor(id: int)
+        +get_count(): int
+    }
+
+    class AbstractDoctorRepository {
+        <<abstract>>
+        #doctors: List<Doctor>
+        #filename: String
+        +AbstractDoctorRepository(filename: String)
+        +getById(id: int): Doctor
+        +get_k_n_short_list(k: int, n: int): List<BriefDoctor>
+        +sortByField(fieldName: String)
+        +addDoctor(doctor: Doctor)
+        +replaceDoctor(id: int, newDoctor: Doctor)
+        +deleteDoctor(id: int)
+        +get_count(): int
+        #generateNewId(): int
+        +readFromFile()*
+        +writeToFile()*
+    }
+
+    class Doctor_rep_json {
+        -objectMapper: ObjectMapper
+        +Doctor_rep_json(filename: String)
+        +readFromFile()
+        +writeToFile()
+    }
+
+    class Doctor_rep_yaml {
+        -objectMapper: ObjectMapper
+        +Doctor_rep_yaml(filename: String)
+        +readFromFile()
+        +writeToFile()
+    }
+
+    IDoctorRepository <|.. AbstractDoctorRepository : implements
+    AbstractDoctorRepository <|-- Doctor_rep_json : extends
+    AbstractDoctorRepository <|-- Doctor_rep_yaml : extends
+```

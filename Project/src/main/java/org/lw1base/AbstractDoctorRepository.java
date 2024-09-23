@@ -1,5 +1,10 @@
 package org.lw1base;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -9,11 +14,16 @@ public abstract class AbstractDoctorRepository implements IDoctorRepository {
     protected List<Doctor> doctors;
     protected final String filename;
 
+    protected ObjectMapper objectMapper;
+
     public AbstractDoctorRepository(String filename) {
         this.filename = filename;
         this.doctors = new ArrayList<>();
+        this.objectMapper = createObjectMapper();
         readFromFile();
     }
+
+    protected abstract ObjectMapper createObjectMapper();
 
     @Override
     public Doctor getById(int id) {
@@ -92,10 +102,26 @@ public abstract class AbstractDoctorRepository implements IDoctorRepository {
         return doctors.size();
     }
 
-    // Абстрактные методы, которые должны быть реализованы в подклассах
     @Override
-    public abstract void readFromFile();
+    public void readFromFile() {
+        File file = new File(filename);
+        if (file.exists()) {
+            try {
+                CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, Doctor.class);
+                doctors = objectMapper.readValue(file, listType);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
-    public abstract void writeToFile();
+    public void writeToFile() {
+        try {
+            objectMapper.writeValue(new File(filename), doctors);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

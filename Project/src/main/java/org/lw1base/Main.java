@@ -7,12 +7,12 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        MongoDBConnection connection = MongoDBConnection.getInstance();
-        MongoDatabase database = connection.getDatabase();
+        IDoctorRepository dbRepo = new DoctorRepositoryDBAdapter();
 
+        Doctor doctor1 = Doctor.createNewDoctor("Johnson", "Emily", "Rose", 5, "Neurologist");
+        Doctor doctor2 = Doctor.createNewDoctor("Williams", "Michael", "David", 3, "Pediatrician");
 
-        if (!database.listCollectionNames().into(new ArrayList<>()).contains("doctors")) {
-            database.createCollection("doctors");
-        }
+        dbRepo.addDoctor(doctor1);
+        dbRepo.addDoctor(doctor2);
     }
 }

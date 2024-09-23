@@ -9,10 +9,12 @@ import java.util.List;
 
 public class Doctor_rep_DB {
     private final MongoCollection<Document> collection;
+    private final MongoDBAutoIncrement autoIncrement;
 
     public Doctor_rep_DB() {
         MongoDBConnection connection = MongoDBConnection.getInstance();
-        collection = connection.getDatabase().getCollection("doctors");
+        this.collection = connection.getDatabase().getCollection("doctors");
+        this.autoIncrement = new MongoDBAutoIncrement(connection);
     }
 
     public Doctor getById(int id) {
@@ -30,7 +32,16 @@ public class Doctor_rep_DB {
     }
 
     public void addDoctor(Doctor doctor) {
-        collection.insertOne(doctorToDocument(doctor));
+        int newId = autoIncrement.getNextSequence("doctorId");
+        Doctor newDoctor = new Doctor.Builder()
+                .doctorId(newId)
+                .lastName(doctor.getLastName())
+                .firstName(doctor.getFirstName())
+                .middleName(doctor.getMiddleName())
+                .qualification(doctor.getQualification())
+                .specialty(doctor.getSpecialty())
+                .build();
+        collection.insertOne(doctorToDocument(newDoctor));
     }
 
     public void replaceDoctor(int id, Doctor newDoctor) {

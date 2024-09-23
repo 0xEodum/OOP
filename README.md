@@ -145,7 +145,6 @@ classDiagram
         +replaceDoctor(id: int, newDoctor: Doctor)
         +deleteDoctor(id: int)
         +get_count(): int
-        #generateNewId(): int
         #createObjectMapper()*: ObjectMapper
     }
 
@@ -159,7 +158,45 @@ classDiagram
         #createObjectMapper(): ObjectMapper
     }
 
+    class MongoDBConnection {
+        -static instance: MongoDBConnection
+        -mongoClient: MongoClient
+        -database: MongoDatabase
+        -MongoDBConnection()
+        +static getInstance(): MongoDBConnection
+        +getDatabase(): MongoDatabase
+        +close()
+    }
+
+    class Doctor_rep_DB {
+        -collection: MongoCollection<Document>
+        +Doctor_rep_DB()
+        +getById(id: int): Doctor
+        +get_k_n_short_list(k: int, n: int): List<BriefDoctor>
+        +addDoctor(doctor: Doctor)
+        +replaceDoctor(id: int, newDoctor: Doctor)
+        +deleteDoctor(id: int)
+        +get_count(): long
+    }
+
+    class DoctorRepositoryDBAdapter {
+        -dbRepository: Doctor_rep_DB
+        +DoctorRepositoryDBAdapter()
+        +readFromFile()
+        +writeToFile()
+        +getById(id: int): Doctor
+        +get_k_n_short_list(k: int, n: int): List<BriefDoctor>
+        +sortByField(fieldName: String)
+        +addDoctor(doctor: Doctor)
+        +replaceDoctor(id: int, newDoctor: Doctor)
+        +deleteDoctor(id: int)
+        +get_count(): int
+    }
+
     IDoctorRepository <|.. AbstractDoctorRepository : implements
     AbstractDoctorRepository <|-- Doctor_rep_json : extends
     AbstractDoctorRepository <|-- Doctor_rep_yaml : extends
+    IDoctorRepository <|.. DoctorRepositoryDBAdapter : implements
+    DoctorRepositoryDBAdapter --> Doctor_rep_DB : uses
+    Doctor_rep_DB --> MongoDBConnection : uses
 ```

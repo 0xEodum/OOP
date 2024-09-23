@@ -1,15 +1,18 @@
 package org.lw1base;
 
+import com.mongodb.client.MongoDatabase;
+
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        try {
-            Doctor newDoctor = Doctor.createNewDoctor("Smith", "John", "Robert", 5, "Cardiology");
-            System.out.println(newDoctor);
+        MongoDBConnection connection = MongoDBConnection.getInstance();
+        MongoDatabase database = connection.getDatabase();
 
-        } catch (IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
+
+        if (!database.listCollectionNames().into(new ArrayList<>()).contains("doctors")) {
+            database.createCollection("doctors");
         }
     }
 }

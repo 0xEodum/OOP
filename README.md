@@ -134,7 +134,10 @@ classDiagram
         <<abstract>>
         #doctors: List<Doctor>
         #filename: String
+        #objectMapper: ObjectMapper
         +AbstractDoctorRepository(filename: String)
+        +readFromFile()
+        +writeToFile()
         +getById(id: int): Doctor
         +get_k_n_short_list(k: int, n: int): List<BriefDoctor>
         +sortByField(fieldName: String)
@@ -143,22 +146,17 @@ classDiagram
         +deleteDoctor(id: int)
         +get_count(): int
         #generateNewId(): int
-        +readFromFile()*
-        +writeToFile()*
+        #createObjectMapper()*: ObjectMapper
     }
 
     class Doctor_rep_json {
-        -objectMapper: ObjectMapper
         +Doctor_rep_json(filename: String)
-        +readFromFile()
-        +writeToFile()
+        #createObjectMapper(): ObjectMapper
     }
 
     class Doctor_rep_yaml {
-        -objectMapper: ObjectMapper
         +Doctor_rep_yaml(filename: String)
-        +readFromFile()
-        +writeToFile()
+        #createObjectMapper(): ObjectMapper
     }
 
     IDoctorRepository <|.. AbstractDoctorRepository : implements

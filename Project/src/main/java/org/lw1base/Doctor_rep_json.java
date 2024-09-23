@@ -75,13 +75,29 @@ public class Doctor_rep_json {
 
     // f. Добавить объект в список
     public void addDoctor(Doctor doctor) {
-        int newId = doctors.stream()
+        int newId = generateNewId();
+        Doctor newDoctor = Doctor.createNewDoctor(
+                doctor.getLastName(),
+                doctor.getFirstName(),
+                doctor.getMiddleName(),
+                doctor.getQualification(),
+                doctor.getSpecialty()
+        );
+        doctors.add(new Doctor.Builder()
+                .doctorId(newId)
+                .lastName(newDoctor.getLastName())
+                .firstName(newDoctor.getFirstName())
+                .middleName(newDoctor.getMiddleName())
+                .qualification(newDoctor.getQualification())
+                .specialty(newDoctor.getSpecialty())
+                .build());
+    }
+
+    private int generateNewId() {
+        return doctors.stream()
                 .mapToInt(Doctor::getDoctorId)
                 .max()
                 .orElse(0) + 1;
-        Doctor newDoctor = Doctor.updateExistingDoctor(newId, doctor.getLastName(), doctor.getFirstName(),
-                doctor.getMiddleName(), doctor.getQualification(), doctor.getSpecialty());
-        doctors.add(newDoctor);
     }
 
     // g. Заменить элемент списка по ID

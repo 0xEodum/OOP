@@ -23,6 +23,26 @@ public abstract class AbstractDoctorRepository implements IDoctorRepository {
         readFromFile();
     }
 
+    public void readFromFile() {
+        File file = new File(filename);
+        if (file.exists()) {
+            try {
+                CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, Doctor.class);
+                doctors = objectMapper.readValue(file, listType);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void writeToFile() {
+        try {
+            objectMapper.writeValue(new File(filename), doctors);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     protected abstract ObjectMapper createObjectMapper();
 
     @Override
@@ -38,7 +58,7 @@ public abstract class AbstractDoctorRepository implements IDoctorRepository {
         return doctors.stream()
                 .skip((long) (k - 1) * n)
                 .limit(n)
-                .map(doctor -> new BriefDoctor(doctor.getDoctorId(), doctor.getLastName(), doctor.getFirstName()))
+                .map(doctor -> new BriefDoctor(doctor.getDoctorId(), doctor.getLastName(), doctor.getFirstName(), doctor.getMiddleName()))
                 .collect(Collectors.toList());
     }
 
@@ -57,20 +77,13 @@ public abstract class AbstractDoctorRepository implements IDoctorRepository {
     @Override
     public void addDoctor(Doctor doctor) {
         int newId = generateNewId();
-        Doctor newDoctor = Doctor.createNewDoctor(
-                doctor.getLastName(),
-                doctor.getFirstName(),
-                doctor.getMiddleName(),
-                doctor.getQualification(),
-                doctor.getSpecialty()
-        );
         doctors.add(new Doctor.Builder()
                 .doctorId(newId)
-                .lastName(newDoctor.getLastName())
-                .firstName(newDoctor.getFirstName())
-                .middleName(newDoctor.getMiddleName())
-                .qualification(newDoctor.getQualification())
-                .specialty(newDoctor.getSpecialty())
+                .lastName(doctor.getLastName())
+                .firstName(doctor.getFirstName())
+                .middleName(doctor.getMiddleName())
+                .qualification(doctor.getQualification())
+                .specialty(doctor.getSpecialty())
                 .build());
     }
 

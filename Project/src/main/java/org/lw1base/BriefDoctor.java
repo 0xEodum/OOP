@@ -8,6 +8,9 @@ public class BriefDoctor implements IDoctor {
     @JsonProperty("doctorId")
     protected int doctorId;
 
+    @JsonProperty("middleName")
+    protected String middleName;
+
     @JsonProperty("lastName")
     protected String lastName;
 
@@ -18,10 +21,12 @@ public class BriefDoctor implements IDoctor {
 
     public BriefDoctor(@JsonProperty("doctorId") int doctorId,
                        @JsonProperty("lastName") String lastName,
-                       @JsonProperty("firstName") String firstName) {
+                       @JsonProperty("firstName") String firstName,
+                        @JsonProperty("middleName") String middleName) {
         setDoctorId(doctorId);
         setLastName(lastName);
         setFirstName(firstName);
+        setMiddleName(middleName);
     }
 
     @Override
@@ -44,6 +49,11 @@ public class BriefDoctor implements IDoctor {
         this.lastName = lastName;
     }
 
+    public void setMiddleName(String middleName){
+        DoctorValidator.validateName(middleName, "Middle Name");
+        this.middleName = middleName;
+    }
+
     @Override
     public String getFirstName() {
         return firstName;
@@ -56,7 +66,7 @@ public class BriefDoctor implements IDoctor {
 
     @Override
     public String getInitials() {
-        return firstName.charAt(0) + "." + lastName.charAt(0) + ".";
+        return firstName.charAt(0) + "." + lastName.charAt(0) + "." + middleName;
     }
 
     @Override

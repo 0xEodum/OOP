@@ -2,7 +2,6 @@ package org.lw1base;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +70,8 @@ public class Doctor_rep_DB {
         return new BriefDoctor(
                 doc.getInteger("doctorId"),
                 doc.getString("lastName"),
-                doc.getString("firstName")
+                doc.getString("firstName"),
+                doc.getString("middleName")
         );
     }
 

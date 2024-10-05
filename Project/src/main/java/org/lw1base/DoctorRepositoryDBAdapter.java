@@ -10,16 +10,6 @@ public class DoctorRepositoryDBAdapter implements IDoctorRepository {
     }
 
     @Override
-    public void readFromFile() {
-        // Этот метод не применим для базы данных
-    }
-
-    @Override
-    public void writeToFile() {
-        // Этот метод не применим для базы данных
-    }
-
-    @Override
     public Doctor getById(int id) {
         return dbRepository.getById(id);
     }

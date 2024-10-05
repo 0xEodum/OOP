@@ -119,8 +119,6 @@ classDiagram
 classDiagram
     class IDoctorRepository {
         <<interface>>
-        +readFromFile()
-        +writeToFile()
         +getById(id: int): Doctor
         +get_k_n_short_list(k: int, n: int): List<BriefDoctor>
         +sortByField(fieldName: String)
@@ -182,8 +180,6 @@ classDiagram
     class DoctorRepositoryDBAdapter {
         -dbRepository: Doctor_rep_DB
         +DoctorRepositoryDBAdapter()
-        +readFromFile()
-        +writeToFile()
         +getById(id: int): Doctor
         +get_k_n_short_list(k: int, n: int): List<BriefDoctor>
         +sortByField(fieldName: String)

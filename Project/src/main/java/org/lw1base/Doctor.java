@@ -9,8 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class Doctor extends BriefDoctor {
-    @JsonProperty("middleName")
-    private String middleName;
 
     @JsonProperty("qualification")
     private int qualification;
@@ -21,8 +19,7 @@ public class Doctor extends BriefDoctor {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private Doctor(Builder builder) {
-        super(builder.doctorId.orElse(0), builder.lastName, builder.firstName);
-        this.middleName = builder.middleName;
+        super(builder.doctorId.orElse(0), builder.lastName, builder.firstName, builder.middleName);
         this.qualification = builder.qualification;
         this.specialty = builder.specialty;
     }

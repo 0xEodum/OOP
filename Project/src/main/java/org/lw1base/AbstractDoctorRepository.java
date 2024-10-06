@@ -13,37 +13,22 @@ import java.util.stream.Collectors;
 public abstract class AbstractDoctorRepository implements IDoctorRepository {
     protected List<Doctor> doctors;
     protected final String filename;
+    protected ISerializationStrategy serializationStrategy;
 
-    protected ObjectMapper objectMapper;
-
-    public AbstractDoctorRepository(String filename) {
+    public AbstractDoctorRepository(String filename, ISerializationStrategy strategy) {
         this.filename = filename;
+        this.serializationStrategy = strategy;
         this.doctors = new ArrayList<>();
-        this.objectMapper = createObjectMapper();
         readFromFile();
     }
 
     public void readFromFile() {
-        File file = new File(filename);
-        if (file.exists()) {
-            try {
-                CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, Doctor.class);
-                doctors = objectMapper.readValue(file, listType);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        this.doctors = serializationStrategy.readFromFile(filename);
     }
 
     public void writeToFile() {
-        try {
-            objectMapper.writeValue(new File(filename), doctors);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        serializationStrategy.writeToFile(filename, doctors);
     }
-
-    protected abstract ObjectMapper createObjectMapper();
 
     @Override
     public Doctor getById(int id) {
@@ -115,26 +100,5 @@ public abstract class AbstractDoctorRepository implements IDoctorRepository {
         return doctors.size();
     }
 
-    @Override
-    public void readFromFile() {
-        File file = new File(filename);
-        if (file.exists()) {
-            try {
-                CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, Doctor.class);
-                doctors = objectMapper.readValue(file, listType);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void writeToFile() {
-        try {
-            objectMapper.writeValue(new File(filename), doctors);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 }

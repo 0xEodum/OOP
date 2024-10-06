@@ -132,8 +132,8 @@ classDiagram
         <<abstract>>
         #doctors: List<Doctor>
         #filename: String
-        #objectMapper: ObjectMapper
-        +AbstractDoctorRepository(filename: String)
+        #serializationStrategy: SerializationStrategy
+        +AbstractDoctorRepository(filename: String, strategy: SerializationStrategy)
         +readFromFile()
         +writeToFile()
         +getById(id: int): Doctor
@@ -143,16 +143,31 @@ classDiagram
         +replaceDoctor(id: int, newDoctor: Doctor)
         +deleteDoctor(id: int)
         +get_count(): int
+    }
+
+    class DoctorRepository {
+        +DoctorRepository(filename: String, strategy: SerializationStrategy)
+    }
+
+    class SerializationStrategy {
+        <<interface>>
+        +readFromFile(filename: String): List<Doctor>
+        +writeToFile(filename: String, doctors: List<Doctor>)
+    }
+
+    class AbstractSerializationStrategy {
+        <<abstract>>
+        #objectMapper: ObjectMapper
+        +readFromFile(filename: String): List<Doctor>
+        +writeToFile(filename: String, doctors: List<Doctor>)
         #createObjectMapper()*: ObjectMapper
     }
 
-    class Doctor_rep_json {
-        +Doctor_rep_json(filename: String)
+    class JsonSerializationStrategy {
         #createObjectMapper(): ObjectMapper
     }
 
-    class Doctor_rep_yaml {
-        +Doctor_rep_yaml(filename: String)
+    class YamlSerializationStrategy {
         #createObjectMapper(): ObjectMapper
     }
 
@@ -190,8 +205,11 @@ classDiagram
     }
 
     IDoctorRepository <|.. AbstractDoctorRepository : implements
-    AbstractDoctorRepository <|-- Doctor_rep_json : extends
-    AbstractDoctorRepository <|-- Doctor_rep_yaml : extends
+    AbstractDoctorRepository <|-- DoctorRepository : extends
+    AbstractDoctorRepository --> SerializationStrategy : uses
+    SerializationStrategy <|.. AbstractSerializationStrategy : implements
+    AbstractSerializationStrategy <|-- JsonSerializationStrategy : extends
+    AbstractSerializationStrategy <|-- YamlSerializationStrategy : extends
     IDoctorRepository <|.. DoctorRepositoryDBAdapter : implements
     DoctorRepositoryDBAdapter --> Doctor_rep_DB : uses
     Doctor_rep_DB --> MongoDBConnection : uses
